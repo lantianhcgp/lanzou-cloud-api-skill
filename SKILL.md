@@ -57,8 +57,6 @@ $SCRIPT upload <本地文件路径> [-d 目标文件夹ID]
 # 下载文件（by ID）
 $SCRIPT download <文件ID> [-o 保存路径]
 
-# 下载文件（by 分享链接）
-$SCRIPT download-url <蓝奏云分享链接> [-p 提取码] [-o 保存路径]
 
 # 删除文件
 $SCRIPT delete <文件ID>
@@ -68,7 +66,6 @@ $SCRIPT rename-file <文件ID> <新文件名>
 
 # 获取文件直链
 $SCRIPT durl <文件ID>
-$SCRIPT durl-url <分享链接> [-p 提取码]
 
 # 设置文件提取码（2-6位）
 $SCRIPT set-pwd <文件ID> <密码>
@@ -106,10 +103,7 @@ $SCRIPT path [文件夹ID]
 
 # 获取文件夹详情（含子文件列表）
 $SCRIPT dir-info <文件夹ID>
-$SCRIPT dir-info-url <分享链接> [-p 提取码]
 
-# 设置文件夹提取码（0-12位）
-$SCRIPT set-dir-pwd <文件夹ID> <密码>
 ```
 
 ### 分享链接解析
@@ -138,45 +132,9 @@ $SCRIPT rec-delete <文件ID> [-f]
 $SCRIPT rec-clean
 ```
 
-### 批量操作
 
-```bash
-# 批量上传目录
-$SCRIPT upload-dir <本地目录路径> [-d 目标文件夹ID]
 
-# 批量下载文件夹
-$SCRIPT download-dir <文件夹ID> [-o 保存路径]
-$SCRIPT download-dir-url <分享链接> [-p 提取码] [-o 保存路径]
-```
 
-## 工具脚本
-
-核心实现在 `scripts/lanzou_api.py`，提供以下 Python 函数：
-
-| 函数 | 说明 |
-|------|------|
-| `lanzou_login($user, $pass)` | 用户名密码登录 |
-| `lanzou_login_cookie($cookie)` | Cookie 登录 |
-| `lanzou_logout()` | 注销 |
-| `lanzou_get_file_list($folder_id)` | 获取文件列表 |
-| `lanzou_get_dir_list($folder_id)` | 获取文件夹列表 |
-| `lanzou_upload_file($file_path, $folder_id)` | 上传文件 |
-| `lanzou_download_file($file_id, $save_path)` | 下载文件 |
-| `lanzou_delete($fid, $is_file)` | 删除文件/文件夹 |
-| `lanzou_mkdir($parent_id, $name, $desc)` | 创建文件夹 |
-| `lanzou_rename_dir($folder_id, $name)` | 重命名文件夹 |
-| `lanzou_set_passwd($fid, $pwd, $is_file)` | 设置提取码 |
-| `lanzou_get_share_info($fid, $is_file)` | 获取分享信息 |
-| `lanzou_get_durl($fid)` | 获取直链 |
-| `lanzou_set_desc($fid, $desc, $is_file)` | 设置描述 |
-| `lanzou_move_file($file_id, $folder_id)` | 移动文件 |
-| `lanzou_move_folder($folder_id, $parent_id)` | 移动文件夹 |
-| `lanzou_parse_share($url, $pwd)` | 解析分享链接 |
-| `lanzou_resolve_url($url, $pwd)` | 获取分享直链 |
-| `lanzou_get_rec_list()` | 回收站列表 |
-| `lanzou_recovery($fid, $is_file)` | 恢复文件 |
-| `lanzou_delete_rec($fid, $is_file)` | 彻底删除回收站文件 |
-| `lanzou_clean_rec()` | 清空回收站 |
 
 ## 错误码
 

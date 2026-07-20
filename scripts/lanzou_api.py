@@ -13,10 +13,8 @@ import os
 import re
 import sys
 import json
-import hashlib
 import tempfile
 import mimetypes
-from http.cookiejar import CookieJar
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen, build_opener, HTTPCookieProcessor
 from urllib.error import URLError, HTTPError
