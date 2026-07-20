@@ -108,11 +108,19 @@ def curl_get(url, extra_headers=None):
     req = Request(url, headers=_headers(extra_headers))
     try:
         resp = _opener.open(req, timeout=15)
-        return {'body': resp.read().decode('utf-8', errors='replace'), 'url': resp.url, 'code': resp.status}
+        raw = resp.read()
+        if raw[:2] == b'\x1f\x8b':
+            import gzip
+            raw = gzip.decompress(raw)
+        return {'body': raw.decode('utf-8', errors='replace'), 'url': resp.url, 'code': resp.status}
     except (URLError, HTTPError) as e:
         body = ''
         if hasattr(e, 'read'):
-            body = e.read().decode('utf-8', errors='replace')
+            raw = e.read()
+            if raw[:2] == b'\x1f\x8b':
+                import gzip
+                raw = gzip.decompress(raw)
+            body = raw.decode('utf-8', errors='replace')
         return {'body': body, 'url': url, 'code': getattr(e, 'code', 0)}
 
 def curl_post(url, data, extra_headers=None, referer=''):
@@ -124,11 +132,19 @@ def curl_post(url, data, extra_headers=None, referer=''):
     req = Request(url, data=data, headers=headers, method='POST')
     try:
         resp = _opener.open(req, timeout=30)
-        return {'body': resp.read().decode('utf-8', errors='replace'), 'url': resp.url}
+        raw = resp.read()
+        if raw[:2] == b'\x1f\x8b':
+            import gzip
+            raw = gzip.decompress(raw)
+        return {'body': raw.decode('utf-8', errors='replace'), 'url': resp.url}
     except (URLError, HTTPError) as e:
         body = ''
         if hasattr(e, 'read'):
-            body = e.read().decode('utf-8', errors='replace')
+            raw = e.read()
+            if raw[:2] == b'\x1f\x8b':
+                import gzip
+                raw = gzip.decompress(raw)
+            body = raw.decode('utf-8', errors='replace')
         return {'body': body, 'url': url}
 
 def curl_post_multipart(url, fields, extra_headers=None, referer=''):
@@ -163,11 +179,19 @@ def curl_post_multipart(url, fields, extra_headers=None, referer=''):
     req = Request(url, data=body_bytes, headers=headers, method='POST')
     try:
         resp = _opener.open(req, timeout=3600)
-        return {'body': resp.read().decode('utf-8', errors='replace'), 'url': resp.url}
+        raw = resp.read()
+        if raw[:2] == b'\x1f\x8b':
+            import gzip
+            raw = gzip.decompress(raw)
+        return {'body': raw.decode('utf-8', errors='replace'), 'url': resp.url}
     except (URLError, HTTPError) as e:
         body2 = ''
         if hasattr(e, 'read'):
-            body2 = e.read().decode('utf-8', errors='replace')
+            raw = e.read()
+            if raw[:2] == b'\x1f\x8b':
+                import gzip
+                raw = gzip.decompress(raw)
+            body2 = raw.decode('utf-8', errors='replace')
         return {'body': body2, 'url': url}
 
 def post_api(task, extra=None):
@@ -345,7 +369,11 @@ def api_login(user, passwd):
     )
     
     resp = opener.open(req, timeout=15)
-    body = resp.read().decode('utf-8', errors='replace')
+    raw = resp.read()
+    if raw[:2] == b'\x1f\x8b':
+        import gzip
+        raw = gzip.decompress(raw)
+    body = raw.decode('utf-8', errors='replace')
     
     try:
         result = json.loads(body)
