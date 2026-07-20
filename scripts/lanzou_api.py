@@ -19,9 +19,7 @@ import mimetypes
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen, build_opener, HTTPCookieProcessor
 from urllib.error import URLError, HTTPError
-from urllib.parse import urlparse
 import subprocess
-import http.cookiejar
 from http.cookiejar import CookieJar, Cookie
 
 # ==================== 配置 ====================
@@ -342,7 +340,7 @@ def api_login(user, passwd):
         json_err(500, '无法获取 acw_sc__v2，请确保已安装 Node.js')
     
     # Step 2: 构建 opener 并设置 acw cookie
-    cj = http.cookiejar.CookieJar()
+    cj = CookieJar()
     opener = build_opener(HTTPCookieProcessor(cj))
     c = Cookie(0, 'acw_sc__v2', acw, None, False, '.woozooo.com', True, True, '/', True, False, None, False, None, {}, {})
     cj.set_cookie(c)
