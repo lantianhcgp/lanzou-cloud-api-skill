@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import json
+import hashlib
 import tempfile
 import mimetypes
 from urllib.parse import urlencode
@@ -21,7 +22,7 @@ from urllib.error import URLError, HTTPError
 from urllib.parse import urlparse
 import subprocess
 import http.cookiejar
-from http.cookiejar import Cookie
+from http.cookiejar import CookieJar, Cookie
 
 # ==================== 配置 ====================
 LANZOU_HOST = 'https://pan.lanzouo.com'
@@ -57,7 +58,7 @@ def load_cookie():
         if not data or not data.get('ylogin') or not data.get('phpdisk_info'):
             return False
         # 手动添加 cookie
-        from http.cookiejar import Cookie
+        from http.cookiejar import CookieJar, Cookie
         for name, val in [('ylogin', data['ylogin']), ('phpdisk_info', data['phpdisk_info'])]:
             c = Cookie(0, name, val, None, False, '.woozooo.com', True, True,
                        '/', True, False, None, False, None, {}, {})
