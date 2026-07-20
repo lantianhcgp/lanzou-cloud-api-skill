@@ -373,19 +373,38 @@ def api_login(user, passwd):
         raw = gzip.decompress(raw)
     body = raw.decode('utf-8', errors='replace')
     
-    # 如果返回 JS 验证页面，重新获取 acw cookie 并重试
+    # 如果返回 JS 验证页面，执行页面 JS 获取新 cookie 并重建请求重试
     if '<script>var arg1=' in body:
-        acw2 = _get_acw_cookie()
-        if acw2:
-            cj.clear()
-            c2 = Cookie(0, 'acw_sc__v2', acw2, None, False, '.woozooo.com', True, True, '/', True, False, None, False, None, {}, {})
-            cj.set_cookie(c2)
-            resp = opener.open(req, timeout=15)
-            raw = resp.read()
-            if raw[:2] == b'\x1f\x8b':
-                import gzip
-                raw = gzip.decompress(raw)
-            body = raw.decode('utf-8', errors='replace')
+        m_js = re.search(r'<script>(.*?)</script>', body, re.DOTALL)
+        if m_js:
+            node_script = """var cv = \"\";var document = {set cookie(v) {cv = v;}, location: {reload: function() {}}};try {%s} catch(e) {}var match = cv.match(/acw_sc__v2=([^;]+)/);if (match) console.log(match[1]);""" % m_js.group(1)
+            tmp = os.path.join(tempfile.gettempdir(), 'acw_retry.js')
+            with open(tmp, 'w') as f:
+                f.write(node_script)
+            result = subprocess.run(['node', tmp], capture_output=True, text=True, timeout=5)
+            os.remove(tmp)
+            new_acw = result.stdout.strip()
+            if new_acw:
+                cj.clear()
+                c2 = Cookie(0, 'acw_sc__v2', new_acw, None, False, '.woozooo.com', True, True, '/', True, False, None, False, None, {}, {})
+                cj.set_cookie(c2)
+                req2 = Request(
+                    'https://accounts.woozooo.com/accounts.php',
+                    data=login_data,
+                    headers={
+                        'User-Agent': UA,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Origin': 'https://accounts.woozooo.com',
+                        'Referer': 'https://accounts.woozooo.com/accounts.php?action=login&ref=pc.woozooo.com',
+                    },
+                    method='POST'
+                )
+                resp = opener.open(req2, timeout=15)
+                raw = resp.read()
+                if raw[:2] == b'\x1f\x8b':
+                    import gzip
+                    raw = gzip.decompress(raw)
+                body = raw.decode('utf-8', errors='replace')
     
     try:
         result = json.loads(body)
