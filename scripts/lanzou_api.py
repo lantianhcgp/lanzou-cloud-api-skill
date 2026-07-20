@@ -373,6 +373,20 @@ def api_login(user, passwd):
         raw = gzip.decompress(raw)
     body = raw.decode('utf-8', errors='replace')
     
+    # 如果返回 JS 验证页面，重新获取 acw cookie 并重试
+    if '<script>var arg1=' in body:
+        acw2 = _get_acw_cookie()
+        if acw2:
+            cj.clear()
+            c2 = Cookie(0, 'acw_sc__v2', acw2, None, False, '.woozooo.com', True, True, '/', True, False, None, False, None, {}, {})
+            cj.set_cookie(c2)
+            resp = opener.open(req, timeout=15)
+            raw = resp.read()
+            if raw[:2] == b'\x1f\x8b':
+                import gzip
+                raw = gzip.decompress(raw)
+            body = raw.decode('utf-8', errors='replace')
+    
     try:
         result = json.loads(body)
     except:
